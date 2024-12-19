@@ -1,0 +1,16 @@
+namespace MusicGameEngine
+{
+    using System.Collections;
+    using System.Collections.Generic;
+    using UnityEngine;
+
+    public interface IBeatAnimationExecutable
+    {
+        /// <summary>
+        /// BeatAnimationÇé¿çsÇ∑ÇÈ
+        /// </summary>
+        public void ExecuteBeatAnimation();
+    }
+}
+
+
