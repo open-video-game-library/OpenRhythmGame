@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,17 +28,7 @@ public class SettingMenuWindow : ExtendPlayReactionBase
         public Vector3 rot;
         public Vector3 scale;
     }
-
-    //定数
-    //=======================================================================================================
     
-    //判定のデフォルト値
-    private const double PERFECT_RANGE = 0.06;
-    private const double GOOD_RANGE = 0.12;
-    private const double BAD_RANGE = 0.18;
-    private const double FAST_MISS_RANGE = 0;
-    private const double OVER_TIME = 3;
-
     //フィールド
     //=======================================================================================================
 
@@ -73,9 +64,8 @@ public class SettingMenuWindow : ExtendPlayReactionBase
     [SerializeField] TMP_InputField _fastMissRange;
     [SerializeField] TMP_InputField _overMissRange;
     [SerializeField] List<ObjectPool> _notePools;
-    [SerializeField] Button _resetButton;
 
-    [Header("OSC設定")]
+    [Header("入力設定")]
     [SerializeField] TMP_Dropdown _selectInputMode;
     [SerializeField] List<InputSwitcher> _inputSwitchers;
 
@@ -101,32 +91,88 @@ public class SettingMenuWindow : ExtendPlayReactionBase
         _closeButton.onClick.AddListener(() => OpenWindow(false));
 
         //表示・非表示設定
-        _comboTgl.onValueChanged.AddListener((bool value) => _comboObj.SetActive(value));
-        _judgeTgl.onValueChanged.AddListener((bool value) => _judgeObj.SetActive(value));
-        //_bombTgl.onValueChanged.AddListener((bool value) => _bombObj.SetActive(value));
-        _keyBeamTgl.onValueChanged.AddListener((bool value) => _keyBeamObj.SetActive(value));
+        _comboTgl.onValueChanged.AddListener((bool value) =>
+        {
+            PlaySceneMetaData.DisplayCombo = value;
+            _comboObj.SetActive(value);
+        });
+        _judgeTgl.onValueChanged.AddListener((value) =>
+        {
+            PlaySceneMetaData.DisplayJudge = value;
+            _judgeObj.SetActive(value);
+        });
+        _bombTgl.onValueChanged.AddListener((bool value) =>
+        {
+            PlaySceneMetaData.DisplayBomb = value;
+            _bombObj.SetActive(value);
+        });
+        _keyBeamTgl.onValueChanged.AddListener((bool value) =>
+        {
+            PlaySceneMetaData.DisplayKeyBeam = value;
+            _keyBeamObj.SetActive(value);
+        });
 
         //2D・3D表示設定
-        _displayMode.onValueChanged.AddListener((int value) => ChangeDisplayMode(value));
+        _displayMode.onValueChanged.AddListener((int value) =>
+        {
+            PlaySceneMetaData.DisplayMode = value;
+            ChangeDisplayMode(value);
+        });
 
         //判定幅
-        _perfectRange.onEndEdit.AddListener((string value) => SetJudgeRange(double.Parse(value), 0));
-        _goodRange.onEndEdit.AddListener((string value) => SetJudgeRange(double.Parse(value), 1));
-        _badRange.onEndEdit.AddListener((string value) => SetJudgeRange(double.Parse(value), 2));
-        _fastMissRange.onEndEdit.AddListener((string value) => SetJudgeRange(double.Parse(value), 3));
-        _overMissRange.onEndEdit.AddListener((string value) => SetJudgeRange(double.Parse(value), 4));
-        _resetButton.onClick.AddListener(() =>
+        _perfectRange.onEndEdit.AddListener((string value) =>
         {
-            ResetJudgeRange();
+            PlaySceneMetaData.PerfectRange = double.Parse(value);
+            SetJudgeRange(double.Parse(value), 0);
+        });
+        _goodRange.onEndEdit.AddListener((string value) =>
+        {
+            PlaySceneMetaData.GoodRange = double.Parse(value);
+            SetJudgeRange(double.Parse(value), 1);
+        });
+        _badRange.onEndEdit.AddListener((string value) =>
+        {
+            PlaySceneMetaData.BadRange = double.Parse(value);
+            SetJudgeRange(double.Parse(value), 2);
+        });
+        _fastMissRange.onEndEdit.AddListener((string value) =>
+        {
+            PlaySceneMetaData.FastMissRange = double.Parse(value);
+            SetJudgeRange(double.Parse(value), 3);
+        });
+        _overMissRange.onEndEdit.AddListener((string value) =>
+        {
+            PlaySceneMetaData.OverMissRange = double.Parse(value);
+            SetJudgeRange(double.Parse(value), 4);
         });
         
-        //OSC設定
-        _selectInputMode.onValueChanged.AddListener((i) => PlaySceneMetaData.InputMode = (eInputMode)i);
+        //入力設定
+        _selectInputMode.onValueChanged.AddListener((i) =>
+        {
+            PlaySceneMetaData.InputMode = (eInputMode)i;
+        });
+
+        //各種値の反映
+        _comboTgl.isOn = PlaySceneMetaData.DisplayCombo;
+        _judgeTgl.isOn = PlaySceneMetaData.DisplayJudge;
+        _bombTgl.isOn = PlaySceneMetaData.DisplayBomb;
+        _keyBeamTgl.isOn = PlaySceneMetaData.DisplayKeyBeam;
         
-
-        //- 値とフィールドの初期化
-        ResetJudgeRange();
-
+        _displayMode.value = PlaySceneMetaData.DisplayMode;
+        ChangeDisplayMode(PlaySceneMetaData.DisplayMode);
+        
+        _perfectRange.text = PlaySceneMetaData.PerfectRange.ToString();
+        SetJudgeRange(PlaySceneMetaData.PerfectRange, 0);
+        _goodRange.text = PlaySceneMetaData.GoodRange.ToString();
+        SetJudgeRange(PlaySceneMetaData.GoodRange, 1);
+        _badRange.text = PlaySceneMetaData.BadRange.ToString();
+        SetJudgeRange(PlaySceneMetaData.BadRange, 2);
+        _fastMissRange.text = PlaySceneMetaData.FastMissRange.ToString();
+        SetJudgeRange(PlaySceneMetaData.FastMissRange, 3);
+        _overMissRange.text = PlaySceneMetaData.OverMissRange.ToString();
+        SetJudgeRange(PlaySceneMetaData.OverMissRange, 4);
+        
+        _selectInputMode.value = (int)PlaySceneMetaData.InputMode;
     }
 
     /// <summary>
@@ -197,22 +243,6 @@ public class SettingMenuWindow : ExtendPlayReactionBase
             pool.SetPrefab(prefab);
             pool.ReGeneratePool();
         }
-    }
-
-    private void ResetJudgeRange()
-    {
-        SetJudgeRange(PERFECT_RANGE, 0);
-        SetJudgeRange(GOOD_RANGE, 1);
-        SetJudgeRange(BAD_RANGE, 2);
-        SetJudgeRange(FAST_MISS_RANGE, 3);
-        SetJudgeRange(OVER_TIME, 4);
-        var prefab = _notePools[0].GetPrefab();
-        var judge = prefab.GetComponent<FixableJudge>();
-        _perfectRange.text = judge.GetJudgeRange().Item1.ToString();
-        _goodRange.text = judge.GetJudgeRange().Item2.ToString();
-        _badRange.text = judge.GetJudgeRange().Item3.ToString();
-        _fastMissRange.text = judge.GetJudgeRange().Item4.ToString();
-        _overMissRange.text = judge.GetJudgeRange().Item5.ToString();
     }
 
     //使わない
