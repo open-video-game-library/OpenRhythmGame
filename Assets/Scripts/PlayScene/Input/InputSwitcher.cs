@@ -7,7 +7,7 @@ using UniRx;
 public class InputSwitcher : InputBase
 {
     [SerializeField] private List<InputBase> _inputList;
-    [SerializeField] private int _select = 0;
+    [SerializeField] private eInputMode _inputMode = 0;
     
     private void Start()
     {
@@ -18,15 +18,15 @@ public class InputSwitcher : InputBase
             
             input.AssignInputOnCallback(() =>
             {
-                if (index != _select) return;
+                if (index != (int)_inputMode) return;
                 
-                Debug.Log("On" + _select);
+                Debug.Log("On " + _inputMode);
                 this.ExecuteInputOnCallback();
             });
             input.AssignInputOffCallback(() =>
             {
-                if (index != _select) return;
-                Debug.Log("Off" + _select);
+                if (index != (int)_inputMode) return;
+                Debug.Log("Off " + _inputMode);
                 this.ExecuteInputOffCallback();
             });
         }
@@ -34,14 +34,9 @@ public class InputSwitcher : InputBase
 
     private void Update()
     {
-        if (PlaySceneMetaData.ReceiveOSC && _select != 1)
+        if (PlaySceneMetaData.InputMode != _inputMode)
         {
-            _select = 1;
-        }
-        
-        if(!PlaySceneMetaData.ReceiveOSC && _select != 0)
-        {
-            _select = 0;
+            _inputMode = PlaySceneMetaData.InputMode;
         }
     }
 }

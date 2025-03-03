@@ -3,9 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using OscCore;
 
+public enum eInputMode
+{
+    Key,
+    Touch,
+    OSC
+}
 
 public static class PlaySceneMetaData
 {
-    public static bool ReceiveOSC = false;
-    
+    public static eInputMode InputMode = eInputMode.Key;
 }

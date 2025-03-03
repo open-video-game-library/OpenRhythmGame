@@ -76,7 +76,7 @@ public class SettingMenuWindow : ExtendPlayReactionBase
     [SerializeField] Button _resetButton;
 
     [Header("OSC設定")]
-    [SerializeField] Toggle _useOSCtoggle;
+    [SerializeField] TMP_Dropdown _selectInputMode;
     [SerializeField] List<InputSwitcher> _inputSwitchers;
 
     //メソッド
@@ -121,7 +121,7 @@ public class SettingMenuWindow : ExtendPlayReactionBase
         });
         
         //OSC設定
-        _useOSCtoggle.onValueChanged.AddListener((bool value) => PlaySceneMetaData.ReceiveOSC = value);
+        _selectInputMode.onValueChanged.AddListener((i) => PlaySceneMetaData.InputMode = (eInputMode)i);
         
 
         //- 値とフィールドの初期化
