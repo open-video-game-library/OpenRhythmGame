@@ -11,20 +11,18 @@ public class OSCInput : InputBase
     [Header("osc信号を受信した際、ボタン入力として受け取る値")]
     [SerializeField] private int _actuatedValue;
     [SerializeField] private OscManager _oscManager;
-    
-    private OscServer _server;
 
     private bool _onCall = false;
     private bool _offCall = false;
 
     private void Start()
     {
-        _oscManager._server.TryAddMethod(_oscManager.OscAddress, ReadValues);
+        PlaySceneMetaData.Server.TryAddMethod(PlaySceneMetaData.OscAddress, ReadValues);
     }
 
     private void ReadValues(OscMessageValues values)
     {
-        Debug.Log(values);
+        Debug.Log("Receive: " + values.ReadIntElement(0));
         
         int v = values.ReadIntElement(0);
         var inputButton = Mathf.FloorToInt(v/2f);
@@ -57,5 +55,10 @@ public class OSCInput : InputBase
             ExecuteInputOffCallback();
             _offCall = false;
         }
+    }
+    
+    private void OnDestroy()
+    {
+        PlaySceneMetaData.Server.RemoveMethod(PlaySceneMetaData.OscAddress, ReadValues);
     }
 }

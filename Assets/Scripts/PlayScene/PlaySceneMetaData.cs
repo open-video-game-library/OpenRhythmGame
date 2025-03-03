@@ -13,6 +13,19 @@ public enum eInputMode
 public static class PlaySceneMetaData
 {
     //OSC
+    public static int OscPort = 9000;
+    public static string OscAddress = "/test";
+    public static OscServer Server {
+        get
+        {
+            if (_server == null)
+            {
+                _server = new OscServer(OscPort);
+            }
+            return _server;
+        } 
+    }
+    private static OscServer _server = null;
     
     //各種設定
     public static bool DisplayCombo = true;

@@ -8,11 +8,11 @@ using OscCore;
 public class OscManager : MonoBehaviour
 {
     [SerializeField] private int OscPort = 9000;
-    public string OscAddress = "/test";
-    public OscServer _server { get; private set; } = null;
+    [SerializeField] private string OscAddress = "/test";
     
     private void Awake()
     {
-        _server = new OscServer(OscPort);
+        PlaySceneMetaData.OscPort = OscPort;
+        PlaySceneMetaData.OscAddress = OscAddress;
     }
 }
